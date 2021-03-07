@@ -1,2 +1,1 @@
-# Twisted_Alpha_SMMT
-Social media management Tool
+Twisted Alpha is Software Company that Specializes in making customizable tools for clients.
