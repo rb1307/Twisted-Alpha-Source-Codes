@@ -14,15 +14,12 @@ logging.basicConfig(
 
 
 def get_leader_details(page_details=[]):
-    follower_number={}
+    leader_details = {}
     for items in page_details:
-        details={}
-        details['Party'] = items.get("Details", {}).get("Party", 1)
-        details['name'] = items.get("Details", {}).get("name", 1)
-        details['followers_count'] = items.get("Details", {}).get("followers_count", 1)
-        follower_number[items.get("Name")] = details
-    return follower_number
-
+        details = {'Party': items.get("Details", {}).get("Party", 1), 'name': items.get("Details", {}).get("name", 1),
+                   'followers_count': items.get("Details", {}).get("followers_count", 1)}
+        leader_details[items.get("Leader handle")] = details
+    return leader_details
 
 
 def strip_screen_name(data=None, handle_column=None, party_column=None):
@@ -59,7 +56,6 @@ def get_handle_details(api=None, screen_name=None):
     except UserDetailError:
         user_response = {}
     return user_response
-
 
 
 def client_info(json=None):
@@ -101,10 +97,10 @@ def get_date_range(day=None, hour=None, minutes=None):
     :return: most recent date , least recent date
     """
     # day=int(day)
-    time_line_start = (datetime.datetime.now() - datetime.timedelta(days=day)).replace(hour=hour, minute=minutes).\
+    time_line_start = (datetime.datetime.now() - datetime.timedelta(days=day)).replace(hour=hour, minute=minutes). \
         strftime('%Y-%m-%d-%H-%M')
 
-    time_line_end = (datetime.datetime.now()).replace(hour=hour, minute=minutes).\
+    time_line_end = (datetime.datetime.now()).replace(hour=hour, minute=minutes). \
         strftime('%Y-%m-%d-%H-%M')
     time_line_start = datetime.datetime.strptime(time_line_start, '%Y-%m-%d-%H-%M')
     time_line_end = datetime.datetime.strptime(time_line_end, '%Y-%m-%d-%H-%M')
@@ -174,23 +170,23 @@ def popularity(tweet={}):
     return retweet_count, applause_rate
 
 
-def entities (tweet ={}):
-    hashtags =tweet.get("hashtags" , [])
-    hashtag_data=collect_hashtags(hashtags= hashtags)
-    user_mentions = tweet.get("user_mentions" , [])
+def entities(tweet={}):
+    hashtags = tweet.get("hashtags", [])
+    hashtag_data = collect_hashtags(hashtags=hashtags)
+    user_mentions = tweet.get("user_mentions", [])
     usermention_data = collect_usermentions(user_mentions=user_mentions)
-    return hashtag_data , usermention_data
+    return hashtag_data, usermention_data
 
 
-def collect_hashtags(hashtags = []):
-    htgs =[]
+def collect_hashtags(hashtags=[]):
+    htgs = []
     if len(hashtags) != 0:
-        for hashtag in hashtags :
+        for hashtag in hashtags:
             htgs.append(hashtag.get("text", ""))
     return htgs
 
 
-def collect_usermentions(user_mentions = []):
+def collect_usermentions(user_mentions=[]):
     users = []
     for user in user_mentions:
         users.append(user.get("screen_name"))
@@ -256,7 +252,7 @@ def get_intial_counts(leader_tweets={}):
     return leader_tweets
 
 
-def reply_tweets(leader = 'narendramodi', tweet = {}):
+def reply_tweets(leader='narendramodi', tweet={}):
     status_id = tweet.get("in_reply_to_status_id", '-1')
     screen_name = tweet.get("in_reply_to_screen_name", None)
     if screen_name == leader:
@@ -266,24 +262,24 @@ def reply_tweets(leader = 'narendramodi', tweet = {}):
     return status_id, tweet_type
 
 
-def map_reply(leader_tweets = {}, tweet = {}, status_id = -1):
+def map_reply(leader_tweets={}, tweet={}, status_id=-1):
     if status_id in leader_tweets:
         leader_tweets.get(status_id)['reply_count'] = leader_tweets.get(status_id).get('reply_count') + 1
-        leader_tweets = get_second_degree(tweet=tweet, leader_tweets=leader_tweets, status_id=status_id )
+        leader_tweets = get_second_degree(tweet=tweet, leader_tweets=leader_tweets, status_id=status_id)
     return leader_tweets
 
 
-def quoted_tweets(tweet = {}):
-    quoted_status = tweet.get("quoted_status" , {})
+def quoted_tweets(tweet={}):
+    quoted_status = tweet.get("quoted_status", {})
     status_id = quoted_status.get("id", '-1')
-    screen_name = quoted_status.get("user", {}).get("screen_name" , None)
+    screen_name = quoted_status.get("user", {}).get("screen_name", None)
     return status_id, screen_name
 
 
-def map_quote(leader_tweets = {} , tweet = {} , status_id = -1):
+def map_quote(leader_tweets={}, tweet={}, status_id=-1):
     if status_id in leader_tweets:
         leader_tweets.get(status_id)['quote_count'] = leader_tweets.get(status_id).get('quote_count') + 1
-        leader_tweets = get_second_degree(tweet=tweet, leader_tweets=leader_tweets, status_id=status_id )
+        leader_tweets = get_second_degree(tweet=tweet, leader_tweets=leader_tweets, status_id=status_id)
     return leader_tweets
 
 
@@ -293,7 +289,7 @@ def re_tweet(tweet={}):
     return status_id
 
 
-def get_second_degree(tweet = {} , leader_tweets = {} , status_id = -1):
+def get_second_degree(tweet={}, leader_tweets={}, status_id=-1):
     user_details = user_info(json=tweet.get("user"))
     second_degree_reach = user_details.get("followers_count")
     leader_tweets.get(status_id)['second_degree_reach'] = leader_tweets.get(status_id).get('second_degree_reach') + \
@@ -301,20 +297,20 @@ def get_second_degree(tweet = {} , leader_tweets = {} , status_id = -1):
     return leader_tweets
 
 
-def user_info(json = None , result = None):
+def user_info(json=None, result=None):
     """
     :param json: dictionary :: user details
     :param leader_name:
     :param result:
     :return: info_dict ::(type-->dictionary)
     """
-    resp= []
-    keys =['id', 'name', 'screen_name', 'location', 'description', 'followers_count','created_at' ,
-           'statuses_count','geo_enabled','verified']
+    resp = []
+    keys = ['id', 'name', 'screen_name', 'location', 'description', 'followers_count', 'created_at',
+            'statuses_count', 'geo_enabled', 'verified']
     if json is not None:
         info_dict = {}
-        #info_dict['date'] = datetime.date.today()
-        for key in keys :
+        # info_dict['date'] = datetime.date.today()
+        for key in keys:
             info_dict[key] = json.get(key, None)
         info_dict['created_at'] = str_to_date(dt_string=json.get('created_at'))
         # info_dict['recent_status_timestamp'] = str(str_to_date(dt_string=json.get("status",{}).get("created_at")))
@@ -340,7 +336,7 @@ def media_space_index(result={}):
 
 def calculate_tweet_reach(details={}, followers=0):
     if details.get("type", "") != 'retweet':
-        reach = details.get("second_degree_reach", 0) + details.get("retweet_reach", 0) +followers
+        reach = details.get("second_degree_reach", 0) + details.get("retweet_reach", 0) + followers
     else:
         reach = 0
 
@@ -348,10 +344,10 @@ def calculate_tweet_reach(details={}, followers=0):
 
 
 def calculate_tweet_engagement(details={}, followers=0):
-    followers_1k = int(followers/1000)
+    followers_1k = int(followers / 1000)
     if details.get("type", "") != 'retweet':
-        engagement = details.get('retweet', 0)/followers_1k + details.get("applause_rate", 0)/followers_1k + \
-                 details.get("reply_count", 0)/followers_1k + details.get("quote_count", 0)/followers_1k
+        engagement = details.get('retweet', 0) / followers_1k + details.get("applause_rate", 0) / followers_1k + \
+                     details.get("reply_count", 0) / followers_1k + details.get("quote_count", 0) / followers_1k
     else:
         engagement = 0
     return engagement
@@ -360,7 +356,7 @@ def calculate_tweet_engagement(details={}, followers=0):
 def total_reach(data={}):
     t_reach = 0
     for t_id, details in data.items():
-        t_reach = t_reach + details.get("reach",0)
+        t_reach = t_reach + details.get("reach", 0)
     return t_reach
 
 
@@ -372,8 +368,8 @@ def total_engagement(data={}):
 
 
 def day_tweets(tweets=[], crawl_day=1):
-    result =[]
-    for item in tweets :
+    result = []
+    for item in tweets:
         tweet_data = str_to_date(dt_string=item._json.get("created_at"))
         if tweet_data == datetime.date.today() - datetime.timedelta(crawl_day):
             result.append(item)
@@ -381,9 +377,10 @@ def day_tweets(tweets=[], crawl_day=1):
 
 
 def convert_tweepy_date_todatetime(tweepy_date=None):
-        datetime_in_correctformat = datetime.datetime.strftime(datetime.datetime.strptime(tweepy_date, '%a %b %d %H:%M:%S +0000 %Y'),
-                                         '%Y-%m-%d %H:%M:%S')
-        return datetime_in_correctformat
+    datetime_in_correctformat = datetime.datetime.strftime(
+        datetime.datetime.strptime(tweepy_date, '%a %b %d %H:%M:%S +0000 %Y'),
+        '%Y-%m-%d %H:%M:%S')
+    return datetime_in_correctformat
 
 
 def str_to_date(dt_string=''):
@@ -392,7 +389,7 @@ def str_to_date(dt_string=''):
     :return: date (type--> datetime object)
     """
     dt_string = convert_tweepy_date_todatetime(tweepy_date=dt_string)
-    #date_format = '%a %b %d %H:%M:%S +0000 %Y'
+    # date_format = '%a %b %d %H:%M:%S +0000 %Y'
     date_format = '%Y-%m-%d %H:%M:%S'
     if isinstance(dt_string, str):
         date_time_obj = datetime.datetime.strptime(dt_string, date_format)
