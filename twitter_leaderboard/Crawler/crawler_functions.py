@@ -3,7 +3,7 @@ import logging
 from api_keys import twitter_api_functions
 import datetime
 import dateutil.relativedelta
-from Files import i_o
+from Files import db_connect
 import tweepy
 
 
@@ -172,7 +172,7 @@ def update_blocked_key_credentials(user_keys={}, current_key_number=None, end_po
     # store the reset_time for the key
     user_keys.get(current_key_number).get("api_" + end_point,{})['timestamp'] = reset_time
     # DATABASE LIMIT STATUS UPDATED  - 1
-    i_o.output_current_limit(user_keys=user_keys)
+    db_connect.output_current_limit(user_keys=user_keys)
     return user_keys
 
 
@@ -226,7 +226,7 @@ def get_reset_time(end_point=None,api = None):
             "followers": api.rate_limit_status().get("resources", {}).get("followers", {}).get('/followers/list', {})
                 .get("reset"),
             "retweeters": api.rate_limit_status().get("resources", {}).get("statuses", {})
-                .get( "/statuses/retweets/:id", {}).get("reset"),
+                .get("/statuses/retweets/:id", {}).get("reset"),
             "id_user_lookup": api.rate_limit_status().get("resources", {}).get("users", {}).get("/users/lookup", {})
                 .get("reset")
 
