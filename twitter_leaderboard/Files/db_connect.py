@@ -24,7 +24,7 @@ def get_key_status():
     return user_keys
 
 
-def output_current_limit (user_keys):
+def output_current_limit(user_keys):
     """
     :param user_keys:
     :return:
@@ -66,20 +66,6 @@ class Input:
             raise InputDataError(file_name=self.filename)
 
 
-class Output:
-    def __init__(self, **kwargs):
-        self.params = {
-            'date': str(get_todays_date())
-        }
-        self.params.update(kwargs)
-
-    def clean_data(self):
-        pass
-
-    def store_data_in_excel(self):
-        pass
-
-
 class ConnectoMongo:
     def __init__(self, storage_path=None, credential_file=None, client_db_name=None):
         credentials = getmongodbcredentials(storage_path=storage_path, cred_file=credential_file)
@@ -89,17 +75,30 @@ class ConnectoMongo:
         # self.collection_name = collection_name
 
     def initialize_cluster(self):
-        cluster = MongoClient("mongodb+srv://" + self.cluster_username + ":" + self.cluster_password +
+        cluster = MongoClient("mongodb+srv://twistedalpha:" + self.cluster_password +
                            "@cluster0.hjuda.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        # cluster = MongoClient("mongodb+srv://twistedalpha:<password>@cluster0.hjuda.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         return cluster
 
     def connect_to_collection(self, collection_name=None):
+        """
+        This function is use intialize the mongodb cluster and connect to the required collection
+        of the db
+        :param collection_name: The name of the collection
+        :return:collection instance
+        """
         cluster = self.initialize_cluster()
         collection = cluster[self.db_name][collection_name]
         return collection
 
-    def upload_in_bulk(self, record_list=[]):
-        self.connect_to_collection().insert_many(record_list)
+    def upload_in_bulk(self, collection=None, record_list=[]):
+        print(self.connect_to_collection(collection_name=collection))
+        self.connect_to_collection(collection_name=collection).insert_many(record_list)
         return 0
 
+    def upload_single_record(self, collection=None, record={}):
+        self.connect_to_collection(collection_name=collection).insert_one(record)
 
+    def close_connection(self):
+        self.initialize_cluster().close()
+    # def return_all_docs
