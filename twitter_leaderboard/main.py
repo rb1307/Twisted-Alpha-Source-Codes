@@ -16,7 +16,7 @@ import twitter_leaderboard
 MEDIA_SCORE = False
 
 
-class Assam2021Lite:
+class RunMain:
     def __init__(self, ):
         parser = configargparse.ArgParser(default_config_files=['/home/hp/Twisted Alpha/Social media Management Tool/'
                                                                 'Twisted-Alpha-Source-Codes/twitter_leaderboard/'
