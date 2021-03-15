@@ -18,7 +18,7 @@ subclasses : tw_followers
 import time
 from api_keys import twitter_api_functions
 import logging
-from Files import i_o
+from Files import db_connect
 from Crawler import crawler_functions
 import common_functions
 
@@ -48,7 +48,7 @@ class TwitterCrawler:
             'timeline_end': None,
             'followers_count': 0,
             'authentication_type': "Oauth",
-            'user_keys': i_o.get_key_status()     # FIRST INSTANCE OF CONNECTING TO THE DATABASE
+            'user_keys': db_connect.get_key_status()     # FIRST INSTANCE OF CONNECTING TO THE DATABASE
         }
         self.values.update(kwargs)
         self.values["user_keys"] = crawler_functions.reset_rate_limit_status(end_point=self.values.get("end_point"),
@@ -61,7 +61,6 @@ class TwitterUserTimeline(TwitterCrawler):
         super().__init__(**kwargs)
         self.end_point = 'user_timeline'
         logging.info("Timeline Crawl for " + str(self.values.get("screen_name")))
-
 
     def result(self):
         user_keys = self.values.get("user_keys")
@@ -105,7 +104,7 @@ class TwitterUserTimeline(TwitterCrawler):
         # update limit
         user_keys.get(str(self.current_key_number)).get("api_" + self.values.get('end_point'))['limit'] = limit
         # write the key limits back to database
-        i_o.output_current_limit(user_keys=user_keys)       # write to database
+        db_connect.output_current_limit(user_keys=user_keys)       # write to database
 
         return all_tweets
 
@@ -130,7 +129,7 @@ class TwitterSearch(TwitterCrawler):
         tweets = []
         # self.values.get("count")
 
-        while count < self.values.get("count"):
+        while count < 2:
             limit = limit - 1
             if limit == 0:
                 """tweepy_api, self.current_key_number, user_keys = crawler_functions.rotate_key(
@@ -156,5 +155,5 @@ class TwitterSearch(TwitterCrawler):
                                                              current_key_number=self.current_key_number,
                                                              api=tweepy_api)
         user_keys.get(str(self.current_key_number)).get("api_" + self.values.get('end_point'))['limit'] = limit
-        i_o.output_current_limit(user_keys=user_keys)
+        db_connect.output_current_limit(user_keys=user_keys)
         return tweets
