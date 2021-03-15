@@ -6,12 +6,13 @@ Input  = Tamil Nadu LeaderBoard Source file
 Output = Tamil Nadu Leader Page Details
 """
 import logging
-from Files import i_o
+from Files import db_connect
 from api_keys import twitter_api_functions
 from common_functions import strip_screen_name, get_handle_details, client_info
 
 HANDLE_COLUMN='twitter_link'
 PARTY_Column = 'Party Name'
+COLLECTION_NAME = 'Page Details'
 
 
 class ClientPageDetails:
@@ -21,14 +22,10 @@ class ClientPageDetails:
         }
         self.parameters.update(kwargs)
         # RETRIEVAL OF KEY END POINT STATUS FROM THE DATABASE.
-        self.user_keys = i_o.get_key_status()
-        """self.upload_to_db = i_o.ConnectoMongo(storage_path=self.parameters.get("credentials_path"),
-                                              credential_file=self.parameters.get("credentials_file"),
-                                              client_db_name=self.parameters.get("client_db_name"),
-                                              collection_name=self.parameters.get("Collection Name"))"""
-        print ()
+        self.user_keys = db_connect.get_key_status()
         logging.info("Client Name: " + self.parameters.get("client", "") +"\n\tPurchased Version: "
                      + self.parameters.get("product_version", ""))
+        self.output_obj = self.parameters.get("db_object")
 
     def gettwitterhandles(self):
         input_data = self.parameters.get("S3_input_data")
@@ -44,9 +41,19 @@ class ClientPageDetails:
             user_response = get_handle_details(api=tweepy_api, screen_name=handle)
             user_info = client_info(json=user_response)
             user_info['Party'] = party_name
-            leader_details = {'Name': handle, 'Details': user_info}
+            leader_details = {'Leader handle': handle, 'Details': user_info}
             page_details.append(leader_details)
-        # self.upload_to_db.upload_in_bulk(record_list=page_details)
+        if self.parameters.get("test"):
+            try:
+                self.output_obj.upload_in_bulk(collection=COLLECTION_NAME, record_list=page_details)
+                # self.output_obj.close_connection()
+            except Exception as e:
+                # self.output_obj.close_connection()
+                print(e)
+
+        else:
+            # print to a local file locally
+            pass
         return page_details
 
 
