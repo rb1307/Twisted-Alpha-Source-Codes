@@ -38,6 +38,7 @@ def getmongodbcredentials(storage_path=None, cred_file=None):
     credentials = input_obj.input_from_json()
     return credentials
 
+
 class Input:
     def __init__(self, client_name="Demo", storage=None, filename=None):
         self.client_name=client_name
@@ -80,21 +81,21 @@ class Output:
 
 
 class ConnectoMongo:
-    def __init__(self, storage_path=None, credential_file=None, client_db_name=None, collection_name=None):
+    def __init__(self, storage_path=None, credential_file=None, client_db_name=None):
         credentials = getmongodbcredentials(storage_path=storage_path, cred_file=credential_file)
         self.cluster_username = credentials.get("username")
         self.cluster_password = credentials.get("password")
         self.db_name = client_db_name
-        self.collection_name = collection_name
+        # self.collection_name = collection_name
 
     def initialize_cluster(self):
         cluster = MongoClient("mongodb+srv://" + self.cluster_username + ":" + self.cluster_password +
                            "@cluster0.hjuda.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         return cluster
 
-    def connect_to_collection(self):
+    def connect_to_collection(self, collection_name=None):
         cluster = self.initialize_cluster()
-        collection = cluster[self.db_name][self.collection_name]
+        collection = cluster[self.db_name][collection_name]
         return collection
 
     def upload_in_bulk(self, record_list=[]):
