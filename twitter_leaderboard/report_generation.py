@@ -12,7 +12,7 @@ class TwitterReport:
         }
         self.params.update(kwargs)
 
-    def x(self):
+    def generate_final_report(self):
         response_data = self.params.get("response_data")
         if isinstance(response_data, dict):
             createtweetsreport(response_data=response_data)
@@ -41,23 +41,27 @@ class TwitterReport:
 
 
 def createtweetsreport(response_data={}):
-    all_leaders_data = []
-    final_data = pd.DataFrame()
+    all_tweet_data = []
     for leader_name, leader_data in response_data.items():
         tweets_data = leader_data.get("tweets")
         for tweet_id, tweet_details in tweets_data.items():
-            details = {'Leader name': leader_data.get('Name',None), 'Retweet Count': tweet_details.get('retweet'),
+            details = {'Leader name': leader_data.get('Name', None), 'Retweet Count': tweet_details.get('retweet'),
                        'Applause Rate': tweet_details.get('applause_rate'), 'Tweet Type': tweet_details.get('type'),
                        'Tweet Engagement(per 1K followers)': tweet_details.get("engagement"),
-                       'Business Objective': tweet_details.get('BO')}
-            tweet_link = "https://twitter.com/r" + str(leader_name) + "/status/" + str(tweet_id)
+                       'Business Objective': tweet_details.get('BO'),
+                       'Party': leader_data.get('Party')}
+            tweet_link = generate_tweet_link(twitter_handle=leader_name, tweet_id=tweet_id)
             details['Link'] = tweet_link
-            all_leaders_data.append(details)
-        l_df = pd.DataFrame(all_leaders_data)
-        frames = [l_df, final_data]
-        final_data = pd.concat(frames)
-    final_data.to_excel("final.xlsx", index=0)
+            all_tweet_data.append(details)
+    # UPlOAD TO DB COLLECTION - insert_one ({'today's date : all_tweet_data})
+    # tweet_analysis_data = pd.DataFrame(all_leaders_data)
+    # final_data.to("final.xlsx", index=0)
     return 0
+
+
+def generate_tweet_link(twitter_handle=None, tweet_id=None):
+    tweet_link = "https://twitter.com/" + str(twitter_handle) + "/status/" + str(tweet_id)
+    return tweet_link
 
 
 def create_media_space_records(df=None):
@@ -65,7 +69,6 @@ def create_media_space_records(df=None):
     df['Total'] = df.sum(axis=1)
     res_df = df.div(df.sum(axis=1), axis=0).round(2)
     return res_df
-
 
 
 def post_procesing_leaderboard(df=None):
