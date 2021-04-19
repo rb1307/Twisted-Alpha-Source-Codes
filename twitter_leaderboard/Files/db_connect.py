@@ -2,11 +2,8 @@ import pandas as pd
 import os
 from datetime import *
 import json
-from common_functions import get_todays_date
 from Errors import InputDataError
 from pymongo import MongoClient
-import logging
-import csv
 
 api_path ='/home/hp/PINGALA ANALYTICS/SM Management Tool/pingala_v2/api_keys/'
 
@@ -72,12 +69,10 @@ class ConnectoMongo:
         self.cluster_username = credentials.get("username")
         self.cluster_password = credentials.get("password")
         self.db_name = client_db_name
-        # self.collection_name = collection_name
 
     def initialize_cluster(self):
         cluster = MongoClient("mongodb+srv://twistedalpha:" + self.cluster_password +
                            "@cluster0.hjuda.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-        # cluster = MongoClient("mongodb+srv://twistedalpha:<password>@cluster0.hjuda.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
         return cluster
 
     def connect_to_collection(self, collection_name=None):
@@ -91,12 +86,11 @@ class ConnectoMongo:
         collection = cluster[self.db_name][collection_name]
         return collection
 
-    def upload_in_bulk(self, collection=None, record_list=[]):
-        print(self.connect_to_collection(collection_name=collection))
+    def upload_in_bulk(self, collection=None, record_list=None):
         self.connect_to_collection(collection_name=collection).insert_many(record_list)
         return 0
 
-    def upload_single_record(self, collection=None, record={}):
+    def upload_single_record(self, collection=None, record=[]):
         self.connect_to_collection(collection_name=collection).insert_one(record)
 
     def close_connection(self):
